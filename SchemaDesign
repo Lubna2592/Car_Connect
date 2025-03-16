@@ -1,0 +1,61 @@
+CREATE SCHEMA CAR_CONNECT;
+USE CAR_CONNECT;
+
+CREATE TABLE Customer (
+    CustomerID INT AUTO_INCREMENT PRIMARY KEY,
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
+    Email VARCHAR(100) UNIQUE NOT NULL,
+    PhoneNumber VARCHAR(15) NOT NULL,
+    Address TEXT,
+    Username VARCHAR(50) UNIQUE NOT NULL,
+    PasswordHash VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Vehicle (
+    VehicleID INT AUTO_INCREMENT PRIMARY KEY,
+    Model VARCHAR(50) NOT NULL,
+    Make VARCHAR(50) NOT NULL,
+    Year INT NOT NULL,
+    Color VARCHAR(30) NOT NULL,
+    RegistrationNumber VARCHAR(50) UNIQUE NOT NULL,
+    Availability BOOLEAN DEFAULT TRUE,
+    DailyRate DECIMAL(10,2) NOT NULL,
+    FuelType ENUM('Petrol', 'Diesel', 'Electric', 'Hybrid') NOT NULL, 
+    SeatingCapacity INT DEFAULT 4
+);
+
+CREATE TABLE Reservation (
+    ReservationID INT AUTO_INCREMENT PRIMARY KEY,
+    CustomerID INT,
+    VehicleID INT,
+    StartDate DATETIME NOT NULL,
+    EndDate DATETIME NOT NULL,
+    TotalCost DECIMAL(10,2) NOT NULL,
+    Status ENUM('Pending', 'Confirmed', 'Completed', 'Cancelled') DEFAULT 'Pending',
+    PaymentStatus ENUM('Pending', 'Paid', 'Failed') DEFAULT 'Pending',
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (VehicleID) REFERENCES Vehicle(VehicleID) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE Admin (
+    AdminID INT AUTO_INCREMENT PRIMARY KEY,
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
+    Email VARCHAR(100) UNIQUE NOT NULL,
+    PhoneNumber VARCHAR(15) NOT NULL,
+    Username VARCHAR(50) UNIQUE NOT NULL,
+    PasswordHash VARCHAR(255) NOT NULL,
+    Role ENUM('Super Admin', 'Fleet Manager', 'Support') NOT NULL, 
+    JoinDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Payments (
+    PaymentID INT AUTO_INCREMENT PRIMARY KEY,
+    ReservationID INT UNIQUE NOT NULL,
+    Amount DECIMAL(10,2) NOT NULL,
+    PaymentDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PaymentMethod ENUM('Credit Card', 'Debit Card', 'PayPal', 'UPI', 'Cash') NOT NULL,
+    PaymentStatus ENUM('Pending', 'Completed', 'Failed') DEFAULT 'Pending',
+    FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID) ON DELETE CASCADE ON UPDATE CASCADE
+);
